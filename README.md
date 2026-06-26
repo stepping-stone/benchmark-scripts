@@ -40,6 +40,12 @@ For OCR benchmarks (the Python scripts):
 ```bash
 uv pip install Pillow pypdfium2 huggingface_hub
 ```
+
+For LLM benchmarks (vllm bench CLI):
+ 
+```bash
+uv pip install vllm
+```
  
 ### 4. Set your API key
  
@@ -63,7 +69,52 @@ curl https://llm.stoney-cloud.com/v1/models \
 This should return a list of available models.
  
 ---
+
+## Benchmarking LLMs (text generation models)
  
+Uses `vllm bench` to measure throughput and latency of text generation models through the API gateway.
+ 
+### Quick single test
+ 
+```bash
+vllm bench serve \
+  --backend openai-chat \
+  --model "Qwen/Qwen3-Coder-Next" \
+  --base-url https://llm.stoney-cloud.com \
+  --endpoint /v1/chat/completions \
+  --dataset-name random \
+  --random-input-len 1024 \
+  --random-output-len 256 \
+  --num-prompts 50 \
+  --max-concurrency 1 \
+  --tokenizer "Qwen/Qwen2.5-7B-Instruct" \
+  --percentile-metrics ttft
+```
+
+### Output
+ 
+The console prints a summary per run:
+
+```bash
+============ Serving Benchmark Result ============
+Successful requests:                     48        
+Failed requests:                         2         
+Maximum request concurrency:             1         
+Benchmark duration (s):                  157.46    
+Total input tokens:                      49536     
+Total generated tokens:                  12288     
+Request throughput (req/s):              0.30      
+Output token throughput (tok/s):         78.04     
+Peak output token throughput (tok/s):    257.00    
+Peak concurrent requests:                2.00      
+Total token throughput (tok/s):          392.63    
+---------------Time to First Token----------------
+Mean TTFT (ms):                          3143.01   
+Median TTFT (ms):                        3142.48   
+P99 TTFT (ms):                           3257.47   
+==================================================
+```
+
 ## Benchmarking OCR models (with real documents)
  
 Uses a custom Python script to benchmark OCR models against real CV/resume documents, measuring pages per minute and latency.
