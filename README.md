@@ -47,7 +47,7 @@ uv pip install Pillow pypdfium2 huggingface_hub
 #Set your personal key: 
 STONEY_KEY=sk-your-key-here
 
-# make key visible for bench script:
+# Make key visible for bench script:
 export OPENAI_API_KEY=$STONEY_KEY 
 ```
  
