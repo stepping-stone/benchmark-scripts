@@ -1,8 +1,8 @@
 # Model Benchmarking
  
-Here the Step by Step instructions can be found to benchmark models.
+Here the Step by Step instructions can be found to benchmark OCR models.
 
-In the following description a
+In the following description all steps, including setting up the python environment are listed.
  
 ## What's in this repo
  
