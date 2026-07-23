@@ -10,6 +10,8 @@ In the following description all steps, including setting up the python environm
 |---|---|
 | `bench_cv_endpoint.py` | Benchmark OCR models against real document images (CV/resume pages) |
 | `acquire_cv_data.py` | Download and render real CV documents from a public dataset for use with the OCR benchmark |
+| `flux_generate.py` | Generate a single FLUX image and save it to disk |
+| `flux_bench.py` | Benchmark FLUX image generation — measures latency and throughput |
  
 ## Prerequisites
  
@@ -97,8 +99,8 @@ The console prints a summary per run:
 
 ```bash
 ============ Serving Benchmark Result ============
-Successful requests:                     48        
-Failed requests:                         2         
+Successful requests:                     50        
+Failed requests:                         0         
 Maximum request concurrency:             1         
 Benchmark duration (s):                  157.46    
 Total input tokens:                      49536     
@@ -212,3 +214,104 @@ CSV output is also written to stdout for easy collection into result files.
 - **latency_p99_s:** The response time required in the "worst case" scenario, in seconds.
 - **p50:** Means that 50% of all requests are processed faster.
 - **p99:** Means that 99% of all requests are processed faster.
+
+---
+
+## Generating a FLUX image
+
+Uses `flux_generate.py` to send a text prompt to the FLUX image generation endpoint and save the result as a PNG file.
+
+### Quick usage
+
+```bash
+python flux_generate.py \
+  --api-key $STONEY_KEY \
+  --model "black-forest-labs/FLUX.1-schnell" \
+  --prompt "a photorealistic Swiss mountain at golden hour" \
+  --size 1024x1024 \
+  --steps 4 \
+  --out my_image.png
+```
+
+Or omit `--prompt` to be asked interactively:
+
+```bash
+python flux_generate.py \
+  --api-key $STONEY_KEY \
+  --model "black-forest-labs/FLUX.1-schnell"
+# → Enter your image prompt:
+```
+
+### Key parameters
+
+| Parameter | What it controls |
+|---|---|
+| `--api-key` | Your Stoney Cloud API key (or set `STONEY_KEY` env var) |
+| `--model` | Model ID as shown by `/v1/models` |
+| `--prompt` | Text description of the image to generate |
+| `--size` | Resolution as WxH — e.g. `512x512`, `1024x1024`, `1920x1080`, `2048x2048` |
+| `--steps` | Denoising steps (1–16). More steps = higher quality, slower generation |
+| `--out` | Output filename (default: `flux_image.png`) |
+
+---
+
+## Benchmarking FLUX image generation
+
+Uses `flux_bench.py` to measure generation latency and throughput at a given resolution and step count.
+
+### Quick single test
+
+```bash
+python flux_bench.py \
+  --api-key $STONEY_KEY \
+  --model "black-forest-labs/FLUX.1-schnell" \
+  --base-url https://llm.stoney-cloud.com \
+  --size 1024x1024 \
+  --steps 4 \
+  --num-images 20
+```
+
+### Key parameters
+
+| Parameter | What it controls |
+|---|---|
+| `--api-key` | Your Stoney Cloud API key (or set `STONEY_KEY` env var) |
+| `--model` | Model ID as shown by `/v1/models` |
+| `--size` | Image resolution as WxH |
+| `--steps` | Denoising steps (1–16) |
+| `--num-images` | Number of images to generate per run |
+
+### Output
+
+```
+====================================================
+ FLUX.1 [schnell] benchmark results
+====================================================
+ config:          1024x1024, 4 steps
+ megapixels:      1.049 MP
+ images ok:       20
+ images failed:   0
+ wall-clock:       31.88s
+ mean latency:      1.59s / image
+ p99:               1.75s
+ min / max:       1.48s / 1.75s
+ throughput:        37.6 images / minute
+                    0.63 images / second
+====================================================
+```
+
+## Understanding the metrics
+
+| Metric | What it means |
+|---|---|
+| **config** | The configuration of the image used in the request (size and steps). |
+| **megapixels** | The resolution of the images in megapixels. |
+| **images ok** | The number of successfully generated images. |
+| **images failed** | The number of unsuccessfully generated images. |
+| **wall-clock** | The duration of the benchmark. |
+| **mean latency** | The average duration of an image generation. |
+| **p99** | The time needed for an image generation in the worst case. |
+| **min / max** | The minimal and maximal duration of an image generation. |
+| **throughput** | The number of images generated per second and minute given the configuration. |
+
+---
