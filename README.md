@@ -225,7 +225,6 @@ Uses `flux_generate.py` to send a text prompt to the FLUX image generation endpo
 
 ```bash
 python flux_generate.py \
-  --api-key $STONEY_KEY \
   --model "black-forest-labs/FLUX.1-schnell" \
   --prompt "a photorealistic Swiss mountain at golden hour" \
   --size 1024x1024 \
@@ -237,8 +236,8 @@ Or omit `--prompt` to be asked interactively:
 
 ```bash
 python flux_generate.py \
-  --api-key $STONEY_KEY \
   --model "black-forest-labs/FLUX.1-schnell"
+  --out my_imgage.png
 # → Enter your image prompt:
 ```
 
@@ -246,7 +245,6 @@ python flux_generate.py \
 
 | Parameter | What it controls |
 |---|---|
-| `--api-key` | Your Stoney Cloud API key (or set `STONEY_KEY` env var) |
 | `--model` | Model ID as shown by `/v1/models` |
 | `--prompt` | Text description of the image to generate |
 | `--size` | Resolution as WxH — e.g. `512x512`, `1024x1024`, `1920x1080`, `2048x2048` |
@@ -263,7 +261,6 @@ Uses `flux_bench.py` to measure generation latency and throughput at a given res
 
 ```bash
 python flux_bench.py \
-  --api-key $STONEY_KEY \
   --model "black-forest-labs/FLUX.1-schnell" \
   --base-url https://llm.stoney-cloud.com \
   --size 1024x1024 \
@@ -275,7 +272,6 @@ python flux_bench.py \
 
 | Parameter | What it controls |
 |---|---|
-| `--api-key` | Your Stoney Cloud API key (or set `STONEY_KEY` env var) |
 | `--model` | Model ID as shown by `/v1/models` |
 | `--size` | Image resolution as WxH |
 | `--steps` | Denoising steps (1–16) |
